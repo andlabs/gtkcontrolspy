@@ -1,6 +1,7 @@
-CFILES = main.c
+CFILES = main.c introspect.c
+HFILES = gtkcontrolspy.h
 
-ALLFILES = $(CFILES)
+ALLFILES = $(CFILES) $(HFILES)
 
 LIBS = \
 	`pkg-config --cflags --libs gtk+-3.0 gobject-introspection-1.0` \

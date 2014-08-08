@@ -1,9 +1,5 @@
 // 8 august 2014
-#include <gtk/gtk.h>
-#include <girepository.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
+#include "gtkcontrolspy.h"
 
 GtkWidget *mainwin;
 
@@ -28,7 +24,7 @@ void panic(char *fmt, ...)
 
 int main(void)
 {
-	GError *err = NULL;
+	char *err;
 
 	gtk_init(NULL, NULL);
 
@@ -44,42 +40,9 @@ int main(void)
 
 	gint i, n;
 
-	if (g_irepository_require(NULL, REPO, NULL, 0, &err) == NULL)
-		panic("error loading GTK+ introspection repository: %s", err->message);
-	n = g_irepository_get_n_infos(NULL, REPO);
-	for (i = 0; i < n; i++) {
-		GIBaseInfo *info;
-		GIRegisteredTypeInfo *reg;
-		GIObjectInfo *obj;
-		GType gtype;
-		gint ip, np;
-
-		info = g_irepository_get_info(NULL, REPO, i);
-		if (g_base_info_get_type(info) != GI_INFO_TYPE_OBJECT)
-			continue;
-		reg = (GIRegisteredTypeInfo *) info;
-		obj = (GIObjectInfo *) info;
-		gtype = g_registered_type_info_get_g_type(reg);
-		if (!g_type_is_a(gtype, GTK_TYPE_WIDGET))
-			continue;
-		printf("%s\n", g_object_info_get_type_name(obj));
-		np = g_object_info_get_n_properties(obj);
-		for (ip = 0; ip < np; ip++) {
-			GIPropertyInfo *prop;
-			GIBaseInfo *propbase;
-			GITypeInfo *type;
-			GITypeTag typetag;
-
-			prop = g_object_info_get_property(obj, ip);
-			propbase = (GIBaseInfo *) prop;
-			type = g_property_info_get_type(prop);
-			typetag = g_type_info_get_tag(type);
-			printf("\t%s %s", g_base_info_get_name(propbase), g_type_tag_to_string(typetag));
-			if (typetag == GI_TYPE_TAG_INTERFACE)
-				printf("(%s)", g_base_info_get_name(g_type_info_get_interface(type)));
-			printf("\n");
-		}
-	}
+	err = collectWidgets(REPO, NULL);
+	if (err != NULL)
+		panic("error gathering widgets: %s", err);
 
 //	gtk_main();
 	return 0;
