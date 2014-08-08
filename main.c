@@ -22,6 +22,24 @@ void panic(char *fmt, ...)
 
 #define REPO "Gtk"
 
+void dumpWidget(gpointer key, gpointer val, gpointer data)
+{
+	Widget *w = (Widget *) val;
+	gint i;
+
+	printf("%s : %s\n", w->Name, w->Derived);
+	for (i = 0; i < w->nProperties; i++)
+		if (w->Properties[i].Valid) {
+			printf("\t%s %s", w->Properties[i].Name,
+				g_type_tag_to_string(w->Properties[i].TypeTag));
+			if (w->Properties[i].TypeTag == GI_TYPE_TAG_INTERFACE)
+				printf("(%s %d)",
+					w->Properties[i].TypeName,
+					w->Properties[i].TypeType);
+			printf("\n");
+		}
+}
+
 int main(void)
 {
 	char *err;
@@ -38,11 +56,10 @@ int main(void)
 	gtk_spinner_start(GTK_SPINNER(wait));
 	gtk_widget_show_all(mainwin);
 
-	gint i, n;
-
 	err = collectWidgets(REPO, NULL);
 	if (err != NULL)
 		panic("error gathering widgets: %s", err);
+	g_hash_table_foreach(widgets, dumpWidget, NULL);
 
 //	gtk_main();
 	return 0;

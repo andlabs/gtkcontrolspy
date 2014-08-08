@@ -47,7 +47,8 @@ static void addProperty(GIInfo info, gint n, Property *props)
 	switch (props[n].TypeTag) {
 	case GI_TYPE_TAG_INTERFACE:
 		pi.base = g_type_info_get_interface(ptype.type);
-		// TODO
+		props[n].TypeName = g_strdup(g_registered_type_info_get_type_name(pi.reg));
+		props[n].TypeType = g_base_info_get_type(pi.base);
 		break;
 	case GI_TYPE_TAG_VOID:
 	case GI_TYPE_TAG_ARRAY:
