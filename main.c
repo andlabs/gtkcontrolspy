@@ -52,6 +52,7 @@ int main(void)
 		GIRegisteredTypeInfo *reg;
 		GIObjectInfo *obj;
 		GType gtype;
+		gint ip, np;
 
 		info = g_irepository_get_info(NULL, REPO, i);
 		if (g_base_info_get_type(info) != GI_INFO_TYPE_OBJECT)
@@ -62,8 +63,24 @@ int main(void)
 		if (!g_type_is_a(gtype, GTK_TYPE_WIDGET))
 			continue;
 		printf("%s\n", g_object_info_get_type_name(obj));
+		np = g_object_info_get_n_properties(obj);
+		for (ip = 0; ip < np; ip++) {
+			GIPropertyInfo *prop;
+			GIBaseInfo *propbase;
+			GITypeInfo *type;
+			GITypeTag typetag;
+
+			prop = g_object_info_get_property(obj, ip);
+			propbase = (GIBaseInfo *) prop;
+			type = g_property_info_get_type(prop);
+			typetag = g_type_info_get_tag(type);
+			printf("\t%s %s", g_base_info_get_name(propbase), g_type_tag_to_string(typetag));
+			if (typetag == GI_TYPE_TAG_INTERFACE)
+				printf("(%s)", g_base_info_get_name(g_type_info_get_interface(type)));
+			printf("\n");
+		}
 	}
 
-	gtk_main();
+//	gtk_main();
 	return 0;
 }
