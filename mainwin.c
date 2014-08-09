@@ -7,20 +7,27 @@ struct MainWindow {
 	GtkWidget *window;
 	GtkWidget *layout;
 	GtkWidget *widgetList;
+	GtkListStore *widgetListStore;
 	GtkWidget *widgetScroller;
 	GtkWidget *canvas;
 	GtkWidget *properties;
 };
 
 // TODO is adjusting val legal here?
-static void dumpWidget(gpointer val, gpointer data)
+static void prepareWidgetUIStuff(gpointer val, gpointer data)
 {
 	Widget *w = (Widget *) val;
 	MainWindow *m = (MainWindow *) data;
 	gint i;
 	GtkTreeViewColumn *col;
+	GtkTreeIter iter;
 
 	printf("%s : %s\n", w->Name, w->Derived);
+	gtk_list_store_append(m->widgetListStore, &iter);
+	gtk_list_store_set(m->widgetListStore, &iter,
+		0, w->Name,
+		1, w,
+		-1);
 	w->Model = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 	for (i = 0; i < w->nProperties; i++)
 		if (w->Properties[i].Valid) {
@@ -38,6 +45,7 @@ static void dumpWidget(gpointer val, gpointer data)
 					w->Properties[i].TypeType);
 			printf("\n");
 		}
+
 	w->View = gtk_tree_view_new_with_model(GTK_TREE_MODEL(w->Model));
 	col = gtk_tree_view_column_new_with_attributes("Property", gtk_cell_renderer_text_new(), "text", 0, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(w->View), col);
@@ -56,6 +64,7 @@ static void dumpWidget(gpointer val, gpointer data)
 MainWindow *newMainWindow(void)
 {
 	MainWindow *m;
+	GtkTreeViewColumn *col;
 
 	m = g_new0(MainWindow, 1);
 
@@ -65,9 +74,15 @@ MainWindow *newMainWindow(void)
 	g_signal_connect(m->window, "destroy", gtk_main_quit, NULL);		// TODO safe?
 
 	m->layout = gtk_grid_new();
-	m->widgetList = gtk_tree_view_new();
+	m->widgetListStore = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
+	m->widgetList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m->widgetListStore));
+	col = gtk_tree_view_column_new_with_attributes("", gtk_cell_renderer_text_new(), "text", 0, NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(m->widgetList), col);
+	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(m->widgetList), FALSE);
 	m->widgetScroller = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(m->widgetScroller), GTK_SHADOW_IN);
+	// don't allow horizontal scrolling
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(m->widgetScroller), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(m->widgetScroller), m->widgetList);
 	m->canvas = gtk_layout_new(NULL, NULL);
 	m->properties = gtk_notebook_new();
@@ -93,7 +108,7 @@ MainWindow *newMainWindow(void)
 		m->properties, m->canvas,
 		GTK_POS_BOTTOM, 1, 1);
 
-	g_ptr_array_foreach(widgets, dumpWidget, m);
+	g_ptr_array_foreach(widgets, prepareWidgetUIStuff, m);
 
 	gtk_container_add(GTK_CONTAINER(m->window), m->layout);
 	gtk_widget_show_all(m->window);
