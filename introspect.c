@@ -1,7 +1,7 @@
 // 8 august 2014
 #include "gtkcontrolspy.h"
 
-GPtrArray *widgets;
+GHashTable *widgets;
 
 // cheating (but I'm not the only one; see GdkEvent!)
 typedef union GIInfo GIInfo;
@@ -106,7 +106,7 @@ char *collectWidgets(char *repo, char *version)
 
 	if (g_irepository_require(NULL, repo, version, 0, &err) == NULL)
 		return g_strdup(err->message);
-	widgets = g_ptr_array_new();
+	widgets = g_hash_table_new(g_str_hash, g_str_equal);
 	n = g_irepository_get_n_infos(NULL, repo);
 	for (i = 0; i < n; i++) {
 		GIInfo info, parent;
@@ -127,7 +127,7 @@ char *collectWidgets(char *repo, char *version)
 		widget->Instantiable = !g_object_info_get_abstract(info.obj);
 		for (ip = 0; ip < np; ip++)
 			addProperty(info, ip, widget->Properties);
-		g_ptr_array_add(widgets, widget);
+		g_hash_table_insert(widgets, widget->Name, widget);
 	}
 	return NULL;
 }

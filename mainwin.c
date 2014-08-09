@@ -8,14 +8,14 @@ struct MainWindow {
 	GtkWidget *layout;
 	GtkWidget *widgetList;
 	GtkListStore *widgetListStore;
+	GtkTreeModel *model;
 	GtkWidget *widgetScroller;
 	GtkWidget *canvas;
 	GtkWidget *properties;
 	GtkWidget *current;
 };
 
-// TODO is adjusting val legal here?
-static void prepareWidgetUIStuff(gpointer val, gpointer data)
+static void prepareWidgetUIStuff(gpointer key, gpointer val, gpointer data)
 {
 	Widget *w = (Widget *) val;
 	MainWindow *m = (MainWindow *) data;
@@ -79,7 +79,7 @@ static void changeWidget(GtkTreeSelection *sel, gpointer data)
 	// TODO before the above?
 	if (m->current != NULL)
 		gtk_container_remove(GTK_CONTAINER(m->canvas), m->current);
-	gtk_tree_model_get(GTK_TREE_MODEL(m->widgetListStore), &iter, 1, &w, -1);
+	gtk_tree_model_get(GTK_TREE_MODEL(m->model), &iter, 1, &w, -1);
 	m->current = GTK_WIDGET(g_object_new(w->GType, NULL));
 	gtk_container_add(GTK_CONTAINER(m->canvas), m->current);
 	gtk_widget_show_all(m->current);
@@ -99,7 +99,9 @@ MainWindow *newMainWindow(void)
 
 	m->layout = gtk_grid_new();
 	m->widgetListStore = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-	m->widgetList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m->widgetListStore));
+	m->model = gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(m->widgetListStore));
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(m->model), 0, GTK_SORT_ASCENDING);
+	m->widgetList = gtk_tree_view_new_with_model(m->model);
 	col = gtk_tree_view_column_new_with_attributes("", gtk_cell_renderer_text_new(), "text", 0, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(m->widgetList), col);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(m->widgetList), FALSE);
@@ -133,7 +135,7 @@ MainWindow *newMainWindow(void)
 		m->properties, m->canvas,
 		GTK_POS_BOTTOM, 1, 1);
 
-	g_ptr_array_foreach(widgets, prepareWidgetUIStuff, m);
+	g_hash_table_foreach(widgets, prepareWidgetUIStuff, m);
 
 	gtk_container_add(GTK_CONTAINER(m->window), m->layout);
 	gtk_widget_show_all(m->window);

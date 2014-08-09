@@ -30,7 +30,7 @@ struct Property {
 	GIInfoType TypeType;
 };
 
-extern GPtrArray *widgets;
+extern GHashTable *widgets;
 
 extern char *collectWidgets(char *, char *);
 
