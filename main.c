@@ -22,7 +22,7 @@ void panic(char *fmt, ...)
 
 #define REPO "Gtk"
 
-void dumpWidget(gpointer key, gpointer val, gpointer data)
+void dumpWidget(gpointer val, gpointer data)
 {
 	Widget *w = (Widget *) val;
 	gint i;
@@ -59,7 +59,7 @@ int main(void)
 	err = collectWidgets(REPO, NULL);
 	if (err != NULL)
 		panic("error gathering widgets: %s", err);
-	g_hash_table_foreach(widgets, dumpWidget, NULL);
+	g_ptr_array_foreach(widgets, dumpWidget, NULL);
 
 //	gtk_main();
 	return 0;

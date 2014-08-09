@@ -24,6 +24,6 @@ struct Property {
 	GIInfoType TypeType;
 };
 
-extern GHashTable *widgets;
+extern GPtrArray *widgets;
 
 extern char *collectWidgets(char *, char *);
