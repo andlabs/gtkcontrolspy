@@ -13,6 +13,10 @@ struct Widget {
 	char *Derived;
 	gint nProperties;
 	Property *Properties;
+	GType GType;
+	GtkWidget *View;
+	GtkWidget *ViewScroller;
+	GtkListStore *Model;
 };
 
 struct Property {
