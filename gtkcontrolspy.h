@@ -14,10 +14,10 @@ struct Widget {
 	gint nProperties;
 	Property *Properties;
 	GType GType;
-	GtkWidget *View;
-	GtkWidget *ViewScroller;
-	GtkListStore *Model;
 	gboolean Instantiable;
+	GtkWidget *Grid;
+	GtkWidget **Values;
+	GtkWidget *GridScroller;
 };
 
 struct Property {

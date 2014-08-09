@@ -20,26 +20,35 @@ static void prepareWidgetUIStuff(gpointer val, gpointer data)
 	Widget *w = (Widget *) val;
 	MainWindow *m = (MainWindow *) data;
 	gint i;
-	GtkTreeViewColumn *col;
-	GtkTreeIter iter;
-	GtkCellRenderer *renderer;
 
 	printf("%s : %s\n", w->Name, w->Derived);
+
 	// don't add things like GtkWidget itself or GtkBin or other abstract types to the list of widgets the user can choose from
 	if (w->Instantiable) {
+		GtkTreeIter iter;
+
 		gtk_list_store_append(m->widgetListStore, &iter);
 		gtk_list_store_set(m->widgetListStore, &iter,
 			0, w->Name,
 			1, w,
 			-1);
 	}
-	w->Model = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+
+	w->Grid = gtk_grid_new();
+	w->Values = g_new0(GtkWidget *, w->nProperties);
 	for (i = 0; i < w->nProperties; i++)
 		if (w->Properties[i].Valid) {
-			GtkTreeIter iter;
+			GtkWidget *label;
 
-			gtk_list_store_append(w->Model, &iter);
-			gtk_list_store_set(w->Model, &iter, 0, w->Properties[i].Name, -1);
+			label = gtk_label_new(w->Properties[i].Name);
+			gtk_grid_attach_next_to(GTK_GRID(w->Grid),
+				label, NULL,
+				GTK_POS_BOTTOM, 1, 1);
+			w->Values[i] = gtk_entry_new();
+			gtk_grid_attach_next_to(GTK_GRID(w->Grid),
+				w->Values[i], label,
+				GTK_POS_RIGHT, 1, 1);
+
 			printf("\t%s ", w->Properties[i].Name);
 			if (w->Properties[i].Pointer)
 				printf("*");
@@ -51,20 +60,14 @@ static void prepareWidgetUIStuff(gpointer val, gpointer data)
 			printf("\n");
 		}
 
-	w->View = gtk_tree_view_new_with_model(GTK_TREE_MODEL(w->Model));
-	col = gtk_tree_view_column_new_with_attributes("Property", gtk_cell_renderer_text_new(), "text", 0, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(w->View), col);
-	renderer = gtk_cell_renderer_text_new();
-	g_object_set(renderer, "editable", TRUE, NULL);
-	col = gtk_tree_view_column_new_with_attributes("Value", renderer, "text", 1, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(w->View), col);
-	w->ViewScroller = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(w->ViewScroller), GTK_SHADOW_IN);
-	gtk_container_add(GTK_CONTAINER(w->ViewScroller), w->View);
+	w->GridScroller = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(w->GridScroller), GTK_SHADOW_IN);
+	// TODO 3.8 and lower
+	gtk_container_add(GTK_CONTAINER(w->GridScroller), w->Grid);
 	// keep a ref so we can add/remove tabs
-	g_object_ref_sink(w->ViewScroller);
+	g_object_ref_sink(w->GridScroller);
 	gtk_notebook_append_page(GTK_NOTEBOOK(m->properties),
-		w->ViewScroller,
+		w->GridScroller,
 		gtk_label_new(w->Name));
 }
 
