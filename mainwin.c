@@ -66,9 +66,6 @@ static void prepareWidgetUIStuff(gpointer val, gpointer data)
 	gtk_container_add(GTK_CONTAINER(w->GridScroller), w->Grid);
 	// keep a ref so we can add/remove tabs
 	g_object_ref_sink(w->GridScroller);
-	gtk_notebook_append_page(GTK_NOTEBOOK(m->properties),
-		w->GridScroller,
-		gtk_label_new(w->Name));
 }
 
 static void changeWidget(GtkTreeSelection *sel, gpointer data)
