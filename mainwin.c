@@ -22,6 +22,7 @@ static void prepareWidgetUIStuff(gpointer val, gpointer data)
 	gint i;
 	GtkTreeViewColumn *col;
 	GtkTreeIter iter;
+	GtkCellRenderer *renderer;
 
 	printf("%s : %s\n", w->Name, w->Derived);
 	// don't add things like GtkWidget itself or GtkBin or other abstract types to the list of widgets the user can choose from
@@ -53,7 +54,9 @@ static void prepareWidgetUIStuff(gpointer val, gpointer data)
 	w->View = gtk_tree_view_new_with_model(GTK_TREE_MODEL(w->Model));
 	col = gtk_tree_view_column_new_with_attributes("Property", gtk_cell_renderer_text_new(), "text", 0, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(w->View), col);
-	col = gtk_tree_view_column_new_with_attributes("Value", gtk_cell_renderer_text_new(), "text", 1, NULL);
+	renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "editable", TRUE, NULL);
+	col = gtk_tree_view_column_new_with_attributes("Value", renderer, "text", 1, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(w->View), col);
 	w->ViewScroller = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(w->ViewScroller), GTK_SHADOW_IN);
