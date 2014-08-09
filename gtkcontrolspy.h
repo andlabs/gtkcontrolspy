@@ -19,6 +19,7 @@ struct Property {
 	gboolean Valid;
 	char *Name;
 	GITypeTag TypeTag;
+	gboolean Pointer;
 	// if TypeTag == GI_TYPE_TAG_INTERFACE
 	char *TypeName;
 	GIInfoType TypeType;

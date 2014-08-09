@@ -30,8 +30,10 @@ void dumpWidget(gpointer val, gpointer data)
 	printf("%s : %s\n", w->Name, w->Derived);
 	for (i = 0; i < w->nProperties; i++)
 		if (w->Properties[i].Valid) {
-			printf("\t%s %s", w->Properties[i].Name,
-				g_type_tag_to_string(w->Properties[i].TypeTag));
+			printf("\t%s ", w->Properties[i].Name);
+			if (w->Properties[i].Pointer)
+				printf("*");
+			printf("%s", g_type_tag_to_string(w->Properties[i].TypeTag));
 			if (w->Properties[i].TypeTag == GI_TYPE_TAG_INTERFACE)
 				printf("(%s %d)",
 					w->Properties[i].TypeName,
