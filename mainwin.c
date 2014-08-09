@@ -11,6 +11,7 @@ struct MainWindow {
 	GtkWidget *widgetScroller;
 	GtkWidget *canvas;
 	GtkWidget *properties;
+	GtkWidget *current;
 };
 
 // TODO is adjusting val legal here?
@@ -61,6 +62,23 @@ static void prepareWidgetUIStuff(gpointer val, gpointer data)
 		gtk_label_new(w->Name));
 }
 
+static void changeWidget(GtkTreeSelection *sel, gpointer data)
+{
+	MainWindow *m = (MainWindow *) data;
+	GtkTreeIter iter;
+	Widget *w;
+
+	if (gtk_tree_selection_get_selected(sel, NULL, &iter) == FALSE)
+		return;		// no selection
+	// TODO before the above?
+	if (m->current != NULL)
+		gtk_container_remove(GTK_CONTAINER(m->canvas), m->current);
+	gtk_tree_model_get(GTK_TREE_MODEL(m->widgetListStore), &iter, 1, &w, -1);
+	m->current = GTK_WIDGET(g_object_new(w->GType, NULL));
+	gtk_container_add(GTK_CONTAINER(m->canvas), m->current);
+	gtk_widget_show_all(m->current);
+}
+
 MainWindow *newMainWindow(void)
 {
 	MainWindow *m;
@@ -79,6 +97,7 @@ MainWindow *newMainWindow(void)
 	col = gtk_tree_view_column_new_with_attributes("", gtk_cell_renderer_text_new(), "text", 0, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(m->widgetList), col);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(m->widgetList), FALSE);
+	g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(m->widgetList)), "changed", G_CALLBACK(changeWidget), m);
 	m->widgetScroller = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(m->widgetScroller), GTK_SHADOW_IN);
 	// don't allow horizontal scrolling
