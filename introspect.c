@@ -38,65 +38,13 @@ static inline gboolean isWidget(GIInfo info)
 
 static void addProperty(GIInfo info, gint n, Property *props)
 {
-	GIInfo p, ptype, pi;
+	GIInfo p;
 
 	p.prop = g_object_info_get_property(info.obj, n);
 	props[n].Name = g_strdup(g_base_info_get_name(p.base));
-	ptype.type = g_property_info_get_type(p.prop);
-	props[n].TypeTag = g_type_info_get_tag(ptype.type);
-	props[n].Pointer = g_type_info_is_pointer(ptype.type);
-	switch (props[n].TypeTag) {
-	case GI_TYPE_TAG_INTERFACE:
-		pi.base = g_type_info_get_interface(ptype.type);
-		props[n].TypeName = g_strdup(g_registered_type_info_get_type_name(pi.reg));
-		props[n].TypeType = g_base_info_get_type(pi.base);
-#if 0 /* TODO */
-		switch (props[n].TypeType) {
-		case GI_INFO_TYPE_ENUM:
-//TODO?		case GI_INFO_TYPE_FLAGS:
-			// pointers not sure how to handle
-			if (props[n].Pointer)
-				goto bad;
-			break;
-		case GI_INFO_TYPE_OBJECT:
-		case GI_INFO_TYPE_INTERFACE:
-		case GI_INFO_TYPE_STRUCT:
-		case GI_INFO_TYPE_UNION:
-			// objects should not be handed as non-pointers
-			if (!props[n].Pointer)
-				goto bad;
-			break;
-		default:
-			// not registered types
-			goto bad;
-		}
-#endif
-		break;
-	case GI_TYPE_TAG_ARRAY:
-	case GI_TYPE_TAG_GLIST:
-	case GI_TYPE_TAG_GSLIST:
-	case GI_TYPE_TAG_GHASH:
-	case GI_TYPE_TAG_ERROR:
-		// not sure how to handle yet
-		goto bad;
-	case GI_TYPE_TAG_UTF8:
-	case GI_TYPE_TAG_VOID:
-		// utf8 should only be used for strings
-		// void illegal; void * not
-		if (!props[n].Pointer)
-			goto bad;
-		break;
-	default:
-		// basic types legal; pointers to not sure how to handle
-		if (props[n].Pointer)
-			goto bad;
-	}
-	props[n].Valid = TRUE;
-	return;
-
-bad:
-printf("skipping unknown/illegal prop %s::%s (%s)\n", g_object_info_get_type_name(info.obj), props[n].Name, g_type_tag_to_string(props[n].TypeTag));
-	props[n].Valid = FALSE;
+	props[n].Valid = getBinding(p.prop, &props[n].Editor, &props[n].BindTo);
+if(!props[n].Valid)
+printf("skipping unknown/illegal prop %s::%s (%s)\n", g_object_info_get_type_name(info.obj), props[n].Name, g_type_tag_to_string(g_type_info_get_tag(g_property_info_get_type(p.prop))));
 }
 
 char *collectWidgets(char *repo, char *version)

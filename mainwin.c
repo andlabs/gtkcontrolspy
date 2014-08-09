@@ -48,16 +48,6 @@ static void prepareWidgetUIStuff(gpointer key, gpointer val, gpointer data)
 			gtk_grid_attach_next_to(GTK_GRID(w->Grid),
 				w->Values[i], label,
 				GTK_POS_RIGHT, 1, 1);
-
-			printf("\t%s ", w->Properties[i].Name);
-			if (w->Properties[i].Pointer)
-				printf("*");
-			printf("%s", g_type_tag_to_string(w->Properties[i].TypeTag));
-			if (w->Properties[i].TypeTag == GI_TYPE_TAG_INTERFACE)
-				printf("(%s %d)",
-					w->Properties[i].TypeName,
-					w->Properties[i].TypeType);
-			printf("\n");
 		}
 
 	w->GridScroller = gtk_scrolled_window_new(NULL, NULL);

@@ -23,11 +23,8 @@ struct Widget {
 struct Property {
 	gboolean Valid;
 	char *Name;
-	GITypeTag TypeTag;
-	gboolean Pointer;
-	// if TypeTag == GI_TYPE_TAG_INTERFACE
-	char *TypeName;
-	GIInfoType TypeType;
+	GtkWidget *Editor;
+	char *BindTo;
 };
 
 extern GHashTable *widgets;
@@ -38,3 +35,6 @@ extern char *collectWidgets(char *, char *);
 typedef struct MainWindow MainWindow;
 
 extern MainWindow *newMainWindow(void);
+
+// bindings.c
+extern gboolean getBinding(GIPropertyInfo *, GtkWidget **, char **);
