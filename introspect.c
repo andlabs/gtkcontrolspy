@@ -119,6 +119,7 @@ char *collectWidgets(char *repo, char *version)
 		widget = g_new0(Widget, 1);
 		widget->Name = g_strdup(g_object_info_get_type_name(info.obj));
 		parent.obj = g_object_info_get_parent(info.obj);
+		// don't worry about going past GtkWidget; the map lookup for the Properties notebook will return NULL and stop when we reach that point
 		widget->Derived = g_strdup(g_object_info_get_type_name(parent.obj));
 		np = g_object_info_get_n_properties(info.obj);
 		widget->nProperties = np;

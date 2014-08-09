@@ -73,16 +73,29 @@ static void changeWidget(GtkTreeSelection *sel, gpointer data)
 	MainWindow *m = (MainWindow *) data;
 	GtkTreeIter iter;
 	Widget *w;
+	gint i, n;
 
 	if (gtk_tree_selection_get_selected(sel, NULL, &iter) == FALSE)
 		return;		// no selection
 	// TODO before the above?
 	if (m->current != NULL)
 		gtk_container_remove(GTK_CONTAINER(m->canvas), m->current);
+	n = gtk_notebook_get_n_pages(GTK_NOTEBOOK(m->properties));
+	for (i = 0; i < n; i++)			// repeatedly delete the (new) first page to clear them all
+		gtk_notebook_remove_page(GTK_NOTEBOOK(m->properties), 0);
 	gtk_tree_model_get(GTK_TREE_MODEL(m->model), &iter, 1, &w, -1);
 	m->current = GTK_WIDGET(g_object_new(w->GType, NULL));
 	gtk_container_add(GTK_CONTAINER(m->canvas), m->current);
 	gtk_widget_show_all(m->current);
+	while (w != NULL) {
+		// show everything because GtkNotebook is an example of "buggy for backwards-compatibilty purposes" and requires that a child widget be visible before a tab can be switched to (see the documentation of gtk_notebook_set_current_page())
+		gtk_widget_show_all(w->GridScroller);
+		gtk_notebook_append_page(GTK_NOTEBOOK(m->properties),
+			w->GridScroller,
+			gtk_label_new(w->Name));
+		w = (Widget *) g_hash_table_lookup(widgets, w->Derived);
+	}
+	gtk_widget_show_all(m->properties);		// refresh
 }
 
 MainWindow *newMainWindow(void)
