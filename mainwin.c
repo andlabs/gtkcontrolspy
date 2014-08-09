@@ -88,11 +88,22 @@ static void changeWidget(GtkTreeSelection *sel, gpointer data)
 	gtk_container_add(GTK_CONTAINER(m->canvas), m->current);
 	gtk_widget_show_all(m->current);
 	while (w != NULL) {
+		// add the tab
 		// show everything because GtkNotebook is an example of "buggy for backwards-compatibilty purposes" and requires that a child widget be visible before a tab can be switched to (see the documentation of gtk_notebook_set_current_page())
 		gtk_widget_show_all(w->GridScroller);
 		gtk_notebook_append_page(GTK_NOTEBOOK(m->properties),
 			w->GridScroller,
 			gtk_label_new(w->Name));
+
+		// bind the properties
+		for (i = 0; i < w->nProperties; i++)
+			if (w->Properties[i].Valid)
+				g_object_bind_property(
+					m->current, w->Properties[i].Name,
+					w->Values[i], "text",
+					G_BINDING_BIDIRECTIONAL);
+
+		// next parent
 		w = (Widget *) g_hash_table_lookup(widgets, w->Derived);
 	}
 	gtk_widget_show_all(m->properties);		// refresh
