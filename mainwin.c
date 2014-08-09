@@ -24,11 +24,14 @@ static void prepareWidgetUIStuff(gpointer val, gpointer data)
 	GtkTreeIter iter;
 
 	printf("%s : %s\n", w->Name, w->Derived);
-	gtk_list_store_append(m->widgetListStore, &iter);
-	gtk_list_store_set(m->widgetListStore, &iter,
-		0, w->Name,
-		1, w,
-		-1);
+	// don't add things like GtkWidget itself or GtkBin or other abstract types to the list of widgets the user can choose from
+	if (w->Instantiable) {
+		gtk_list_store_append(m->widgetListStore, &iter);
+		gtk_list_store_set(m->widgetListStore, &iter,
+			0, w->Name,
+			1, w,
+			-1);
+	}
 	w->Model = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 	for (i = 0; i < w->nProperties; i++)
 		if (w->Properties[i].Valid) {

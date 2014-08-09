@@ -124,6 +124,7 @@ char *collectWidgets(char *repo, char *version)
 		widget->nProperties = np;
 		widget->Properties = g_new0(Property, widget->nProperties);
 		widget->GType = g_registered_type_info_get_g_type(info.reg);
+		widget->Instantiable = !g_object_info_get_abstract(info.obj);
 		for (ip = 0; ip < np; ip++)
 			addProperty(info, ip, widget->Properties);
 		g_ptr_array_add(widgets, widget);

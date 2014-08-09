@@ -17,6 +17,7 @@ struct Widget {
 	GtkWidget *View;
 	GtkWidget *ViewScroller;
 	GtkListStore *Model;
+	gboolean Instantiable;
 };
 
 struct Property {
