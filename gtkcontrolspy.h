@@ -32,3 +32,8 @@ struct Property {
 extern GPtrArray *widgets;
 
 extern char *collectWidgets(char *, char *);
+
+// mainwin.c
+typedef struct MainWindow MainWindow;
+
+extern MainWindow *newMainWindow(void);

@@ -1,4 +1,4 @@
-CFILES = main.c introspect.c
+CFILES = main.c introspect.c mainwin.c
 HFILES = gtkcontrolspy.h
 
 ALLFILES = $(CFILES) $(HFILES)
