@@ -16,7 +16,6 @@ struct Widget {
 	GType GType;
 	gboolean Instantiable;
 	GtkWidget *Grid;
-	GtkWidget **Values;
 	GtkWidget *GridScroller;
 };
 

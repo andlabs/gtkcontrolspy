@@ -35,7 +35,6 @@ static void prepareWidgetUIStuff(gpointer key, gpointer val, gpointer data)
 	}
 
 	w->Grid = gtk_grid_new();
-	w->Values = g_new0(GtkWidget *, w->nProperties);
 	for (i = 0; i < w->nProperties; i++)
 		if (w->Properties[i].Valid) {
 			GtkWidget *label;
@@ -44,9 +43,8 @@ static void prepareWidgetUIStuff(gpointer key, gpointer val, gpointer data)
 			gtk_grid_attach_next_to(GTK_GRID(w->Grid),
 				label, NULL,
 				GTK_POS_BOTTOM, 1, 1);
-			w->Values[i] = gtk_entry_new();
 			gtk_grid_attach_next_to(GTK_GRID(w->Grid),
-				w->Values[i], label,
+				w->Properties[i].Editor, label,
 				GTK_POS_RIGHT, 1, 1);
 		}
 
@@ -90,7 +88,7 @@ static void changeWidget(GtkTreeSelection *sel, gpointer data)
 			if (w->Properties[i].Valid)
 				g_object_bind_property(
 					m->current, w->Properties[i].Name,
-					w->Values[i], "text",
+					w->Properties[i].Editor, w->Properties[i].BindTo,
 					G_BINDING_BIDIRECTIONAL);
 
 		// next parent
