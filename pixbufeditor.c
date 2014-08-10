@@ -61,6 +61,8 @@ static void pixbufEditor_setProperty(GObject *obj, guint id, const GValue *value
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, id, pspec);
 		return;
 	}
+	if (e->pixbuf != PIXBUF_EDITOR_GET_CLASS(e)->missing)
+		g_object_unref(e->pixbuf);
 	e->pixbuf = (GdkPixbuf *) g_value_get_object(value);
 }
 
@@ -72,8 +74,6 @@ static void pixbufEditor_getProperty(GObject *obj, guint id, GValue *value, GPar
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, id, pspec);
 		return;
 	}
-	if (e->pixbuf != PIXBUF_EDITOR_GET_CLASS(e)->missing)
-		g_object_unref(e->pixbuf);
 	g_value_set_object(value, e->pixbuf);
 }
 
