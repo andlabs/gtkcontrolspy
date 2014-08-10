@@ -14,9 +14,8 @@ static void fillEnumType(GtkComboBoxText *cb, GIEnumInfo *et)
 	}
 }
 
-static gboolean doRegistered(GIRegisteredTypeInfo *obj, GtkWidget **widget, char **bindto)
+static gboolean doRegistered(GIRegisteredTypeInfo *ri, GtkWidget **widget, char **bindto)
 {
-	GIRegisteredTypeInfo *ri = (GIRegisteredTypeInfo *) obj;
 	GType type;
 
 	type = g_registered_type_info_get_g_type(ri);
