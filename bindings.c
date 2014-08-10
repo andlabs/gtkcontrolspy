@@ -14,6 +14,25 @@ static void fillEnumType(GtkComboBoxText *cb, GIEnumInfo *et)
 	}
 }
 
+static gboolean doRegistered(GIRegisteredTypeInfo *obj, GtkWidget **widget, char **bindto)
+{
+	GIRegisteredTypeInfo *ri = (GIRegisteredTypeInfo *) obj;
+	GType type;
+
+	type = g_registered_type_info_get_g_type(ri);
+	if (g_type_is_a(type, GDK_TYPE_RGBA)) {
+		*widget = gtk_color_button_new();
+		*bindto = "rgba";
+		return TRUE;
+	}
+	if (g_type_is_a(type, GDK_TYPE_COLOR)) {
+		*widget = gtk_color_button_new();
+		*bindto = "color";
+		return TRUE;
+	}
+	return FALSE;
+}
+
 gboolean getBinding(GIPropertyInfo *pi, GtkWidget **widget, char **bindto)
 {
 	GITypeInfo *type;
@@ -36,12 +55,13 @@ gboolean getBinding(GIPropertyInfo *pi, GtkWidget **widget, char **bindto)
 			*bindto = "active";
 			return TRUE;
 		case GI_INFO_TYPE_FLAGS:
+			// TODO
+			break;
 		case GI_INFO_TYPE_OBJECT:
 		case GI_INFO_TYPE_INTERFACE:
 		case GI_INFO_TYPE_STRUCT:
 		case GI_INFO_TYPE_UNION:
-			// TODO
-			break;
+			return doRegistered((GIRegisteredTypeInfo *) iface, widget, bindto);
 		}
 		break;
 	case GI_TYPE_TAG_ARRAY:
