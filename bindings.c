@@ -1,24 +1,49 @@
 // 9 august 2014
 #include "gtkcontrolspy.h"
 
+static void fillEnumType(GtkComboBoxText *cb, GIEnumInfo *et)
+{
+	gint i, n;
+
+	n = g_enum_info_get_n_values(et);
+	for (i = 0; i < n; i++) {
+		GIBaseInfo *value;
+
+		value = (GIBaseInfo *) g_enum_info_get_value(et, i);
+		gtk_combo_box_text_append(cb, NULL, g_base_info_get_name(value));
+	}
+}
+
 gboolean getBinding(GIPropertyInfo *pi, GtkWidget **widget, char **bindto)
 {
 	GITypeInfo *type;
 	gboolean ispointer;
 	gdouble min = (gdouble) G_MININT;
 	gdouble max = (gdouble) G_MAXINT;
+	GIBaseInfo *iface;
 
 	type = g_property_info_get_type(pi);
 	ispointer = g_type_info_is_pointer(type);
 	switch (g_type_info_get_tag(type)) {
-	/* TODO
-	case GI_INFO_TYPE_ENUM:
-	case GI_INFO_TYPE_FLAGS:
-	case GI_INFO_TYPE_OBJECT:
-	case GI_INFO_TYPE_INTERFACE:
-	case GI_INFO_TYPE_STRUCT:
-	case GI_INFO_TYPE_UNION:
-	*/
+	case GI_TYPE_TAG_INTERFACE:
+		if (ispointer)
+			break;
+		iface = g_type_info_get_interface(type);
+		switch (g_base_info_get_type(iface)) {
+		case GI_INFO_TYPE_ENUM:
+			*widget = gtk_combo_box_text_new();
+			fillEnumType(GTK_COMBO_BOX_TEXT(*widget), (GIEnumInfo *) iface);
+			*bindto = "active";
+			return TRUE;
+		case GI_INFO_TYPE_FLAGS:
+		case GI_INFO_TYPE_OBJECT:
+		case GI_INFO_TYPE_INTERFACE:
+		case GI_INFO_TYPE_STRUCT:
+		case GI_INFO_TYPE_UNION:
+			// TODO
+			break;
+		}
+		break;
 	case GI_TYPE_TAG_ARRAY:
 	case GI_TYPE_TAG_GLIST:
 	case GI_TYPE_TAG_GSLIST:
