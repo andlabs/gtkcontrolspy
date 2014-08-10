@@ -29,6 +29,11 @@ static gboolean doRegistered(GIRegisteredTypeInfo *ri, GtkWidget **widget, char 
 		*bindto = "color";
 		return TRUE;
 	}
+	if (g_type_is_a(type, GDK_TYPE_PIXBUF)) {
+		*widget = newPixbufEditor();
+		*bindto = PIXBUF_EDITOR_PROPERTY;
+		return TRUE;
+	}
 	return FALSE;
 }
 
