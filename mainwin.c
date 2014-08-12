@@ -84,12 +84,13 @@ static void changeWidget(GtkTreeSelection *sel, gpointer data)
 			gtk_label_new(w->Name));
 
 		// bind the properties
+		// note that G_BINDING_SYNC_CREATE is always source to target, so we have to specify m->current first to get what we want
 		for (i = 0; i < w->nProperties; i++)
 			if (w->Properties[i].Valid)
 				g_object_bind_property(
 					m->current, w->Properties[i].Name,
 					w->Properties[i].Editor, w->Properties[i].BindTo,
-					G_BINDING_BIDIRECTIONAL);
+					G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
 
 		// next parent
 		w = (Widget *) g_hash_table_lookup(widgets, w->Derived);
