@@ -1,6 +1,8 @@
 // 8 august 2014
 #include "gtkcontrolspy.h"
 
+// #qo pkg-config: gtk+-3.0 gobject-introspection-1.0
+
 void panic(char *fmt, ...)
 {
 	char *msg;
